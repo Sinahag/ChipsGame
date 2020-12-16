@@ -1,13 +1,15 @@
 #include <iostream>
  #include <ctime>
  #include <cstdlib>
+#include <fstream>
 using namespace std;
- 
+
+ofstream output;
 
 string FindPlayerName(string names[], bool playerTurn);
 int askMove(bool player1Turn, int chipsInPile, string names[]);
 void getUserNames (string players[]);
-
+int i = 1;
 const float MAX_TURN = .5;
 const int MAX_CHIPS = 100;
 
@@ -45,11 +47,15 @@ int main()
      {
          gameOver = true;
         cout << FindPlayerName(playerNames, player1Turn) << ", congratulations you won\n";
+         output << FindPlayerName(playerNames, player1Turn) << "has won round:" << i << endl;
      }
     }
     cout << "Do you wish to play again? (Y/N)\n";
     cin >> userChoice;
     userChoice = toupper(userChoice);
+      
+      i++;
+      output.close();
    }while (userChoice == 'Y');
   return 0;
 }
