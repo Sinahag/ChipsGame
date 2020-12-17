@@ -1,14 +1,19 @@
 #include <iostream>
- #include <ctime>
- #include <cstdlib>
+#include <ctime>
+#include <cstdlib>
 #include <fstream>
 using namespace std;
 
 ofstream output;
-
-string FindPlayerName(string names[], bool playerTurn);
-int askMove(bool player1Turn, int chipsInPile, string names[]);
-void getUserNames (string players[]);
+struct player
+{
+    int numWs;
+    string name;
+};
+string FindPlayerName(player[], bool playerTurn);
+int askMove(bool player1Turn, int chipsInPile, player[]);
+void getUserNames (player[]);
+void addWins(player[], bool);
 int i = 1;
 const float MAX_TURN = .5;
 const int MAX_CHIPS = 100;
@@ -23,13 +28,13 @@ int main()
   int chipsTaken = 0;
   
   char userChoice;
-  string playerNames[2];
+  player players[2];
   
   //seed the random number generator
    srand(time(0));
   
   //ask the players for their names, then store in an array
-    getUserNames(playerNames);
+    getUserNames(players);
   //start the game with a random number of chips in the pile
   do
   {
@@ -39,7 +44,7 @@ int main()
     gameOver = false;
     while (gameOver == false)
     {
-     chipsTaken = askMove(player1Turn, chipsInPile, playerNames);
+     chipsTaken = askMove(player1Turn, chipsInPile, players);
      chipsInPile = chipsInPile - chipsTaken;
      cout << "There are " << chipsInPile << " left in the pile\n";
      player1Turn = !player1Turn;
@@ -47,9 +52,10 @@ int main()
      if (chipsInPile == 0)
      {
          gameOver = true;
-        cout << FindPlayerName(playerNames, player1Turn) << ", congratulations you won\n";
+        cout << FindPlayerName(players, player1Turn) << ", congratulations you won\n";
         output.open("Winners", ios::app);
-         output << FindPlayerName(playerNames, player1Turn) << " has won round: " << i << " in " << moves << "moves\n";
+        output << FindPlayerName(players, player1Turn) << " has won round: " << i << " in " << moves << " moves\n";
+        addWins(players,player1Turn);
      }
     }
     cout << "Do you wish to play again? (Y/N)\n";
@@ -57,28 +63,30 @@ int main()
     userChoice = toupper(userChoice);
       
       i++;
-      output.close();
    }while (userChoice == 'Y');
+    cout << players[0].name << " has had " << players[0].numWs << " total wins this game.\n";
+    cout << players[1].name << " has had " << players[1].numWs << " total wins this game.\n";
+    output.close();
   return 0;
 }
 ////////////////////////////////
 //
-string FindPlayerName(string names[], bool playerTurn)
+string FindPlayerName(player players[], bool playerTurn)
 {
     if (playerTurn == true)
-        return names[0];
+        return players[0].name;
     else
-        return names[1];
+        return players[1].name;
 }
 
 /////////////////////////////////////////////////////////////////////////////////
-int askMove(bool player1Turn, int chipsInPile, string names[])
+int askMove(bool player1Turn, int chipsInPile,player players[])
 {
     int chipsTaken;
     int maxPerTurn = MAX_TURN * chipsInPile;
      do
      {
-          cout << FindPlayerName(names, player1Turn) << " How many chips would  you like?\n";
+          cout << FindPlayerName(players, player1Turn) << " How many chips would  you like?\n";
         
         cout << "You can take up to ";
         if (( maxPerTurn ) == 0)
@@ -89,7 +97,7 @@ int askMove(bool player1Turn, int chipsInPile, string names[])
         {
             cout << maxPerTurn << endl;
         }
-        if ( FindPlayerName(names, player1Turn) == "AI")
+        if ( FindPlayerName(players, player1Turn) == "AI")
         {
             if(maxPerTurn == 0)
                 chipsTaken = 1;
@@ -103,12 +111,23 @@ int askMove(bool player1Turn, int chipsInPile, string names[])
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void getUserNames (string players[])
+void getUserNames (player players[])
 {
     cout << "Player 1, please enter your name: ";
-    cin >> players[0];
+    cin >> players[0].name;
     cout << "\nThanks and good luck!" << endl << "Player 2, please enter your name (if you would like to play against a computer, enter AI:";
-    cin >> players[1];
+    cin >> players[1].name;
     cout << "\nThanks and good luck! \n";
+    players[0].numWs = 0;
+    players[1].numWs = 0;
     
+}
+
+void addWins(player players[], bool player1turn)
+{
+    if(player1turn)
+        players[0].numWs++;
+    else
+        players[1].numWs++;
+
 }
